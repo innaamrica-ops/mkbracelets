@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Loving Bracelets</title>
+  <style>
+    :root{
+      --accent:#0b74ff;
+      --muted:#6b7280;
+      --bg:#f7f8fb;
+      --card:#ffffff;
+      --radius:12px;
+      --shadow: 0 6px 20px rgba(18,24,36,0.08);
+      --radius-sm:8px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Arial;background:var(--bg);margin:0;color:#111;line-height:1.4}
+    a{color:inherit}
+    .wrap{max-width:1250px;margin:20px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+    .brand{display:flex;flex-direction:column}
+    .brand .title{font-weight:900;font-size:22px}
+    .brand .tags{font-size:13px;color:var(--muted);margin-top:6px}
+    nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .nav-btn{padding:8px 12px;border-radius:8px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-weight:700}
+    .nav-btn.active{color:var(--accent);background:rgba(11,116,255,0.08)}
+    .icon{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--card);box-shadow:var(--shadow);border:1px solid #eee;cursor:pointer}
+    .hero{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}
+    .hero-inner{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap}
+    .hero-left{flex:1;min-height:360px;position:relative;overflow:hidden;border-right:1px solid #f1f1f1}
+    .hero-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .45s ease;opacity:0}
+    .hero-slide.active{opacity:1}
+    .hero-slide img{width:100%;height:100%;object-fit:cover;display:block}
+    .hero-right{min-width:320px;padding:22px}
+    .hero-right h1{margin:0;font-size:28px}
+    .hero-right p{color:var(--muted);margin:10px 0}
+    .hero-controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:700}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,116,255,0.12)}
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid #eee}
+    .section{margin-bottom:14px}
+    .label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .product{background:#fff;border-radius:10px;border:1px solid #eee;overflow:hidden;display:flex;flex-direction:column}
+    .product-media{position:relative}
+    .product-main-img{width:100%;height:180px;object-fit:cover;display:block}
+    .product-thumbs{display:flex;gap:6px;padding:8px;overflow:auto}
+    .thumb{width:52px;height:42px;flex:0 0 52px;border-radius:6px;object-fit:cover;cursor:pointer;border:1px solid #eee}
+    .product-meta{padding:10px;flex:1;display:flex;flex-direction:column}
+    .product-meta h3{margin:0 0 6px;font-size:15px}
+    .desc{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .tag{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:700;background:#f1f7ff;color:var(--accent);font-size:12px;margin-bottom:8px}
+    .price{font-weight:800;margin-top:auto}
+    .p-actions{display:flex;gap:8px;margin-top:10px}
+    .small{font-size:13px;color:var(--muted)}
+    footer{margin:20px 0;text-align:center;color:var(--muted)}
+    /* horizontal featured slider */
+    .h-slider{position:relative;padding:12px 0}
+    .h-track{display:flex;gap:12px;transition:transform .35s ease}
+    .slide-card{min-width:260px;flex:0 0 260px;border-radius:10px;overflow:hidden;border:1px solid #eee;background:#fff}
+    .slide-card img{width:100%;height:170px;object-fit:cover;display:block}
+    .slide-controls{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+    .dot{width:10px;height:10px;border-radius:50%;background:#e6e6e6;display:inline-block}
+    .dot.active{background:var(--accent)}
+    /* overlays */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.36);display:none;align-items:center;justify-content:center;padding:16px;z-index:90}
+    .overlay.show{display:flex}
+    .modal{width:100%;max-width:980px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 20px 60px rgba(2,6,23,0.25)}
+    input,textarea,select{width:100%;padding:8px;border:1px solid #e6e6e6;border-radius:8px;margin-top:6px}
+    .row{display:flex;gap:10px;align-items:center}
+    .col{flex:1}
+    @media (max-width:900px){
+      .hero-right{min-width:unset}
+      header{flex-direction:column;align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="title">My Loving Bracelets</div>
+        <div class="tags">handmade · premium · affordable</div>
+      </div>
+
+      <nav>
+        <button class="nav-btn active" data-filter="all">All</button>
+        <button class="nav-btn" data-filter="new">New Arrival</button>
+        <button class="nav-btn" data-filter="best">Best Seller</button>
+        <div class="icon" id="openWishlist">Wishlist <span id="wishCount" style="margin-left:8px;background:var(--accent);color:#fff;padding:4px 8px;border-radius:999px;font-weight:800;font-size:12px">0</span></div>
+        <div class="icon" id="openCart">Cart <span id="cartCount" style="margin-left:8px;background:#ff6b6b;color:#fff;padding:4px 8px;border-radius:999px;font-weight:800;font-size:12px">0</span></div>
+        <div class="icon" id="phoneBtn" title="Contact/number">Phone <span id="phoneText" style="opacity:0.85;margin-left:6px">Set number</span></div>
+        <div class="icon" id="openAdmin">Admin</div>
+      </nav>
+    </header>
+
+    <!-- HERO with carousel -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-left" id="heroLeft">
+          <!-- slides inserted by JS -->
+        </div>
+        <div class="hero-right">
+          <h1>My Loving Bracelets</h1>
+          <p class="small">Discover handcrafted bracelets — browse new arrivals, best sellers and curated picks. Use the featured slider to preview more designs.</p>
+          <div class="hero-controls">
+            <button class="btn" id="shopNow">Shop Now</button>
+            <button class="btn ghost" id="viewAll">View Catalog</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured horizontal slider -->
+    <section class="section card">
+      <div class="label-row">
+        <strong>Featured Collection</strong>
+        <div class="slide-controls">
+          <button class="btn ghost" id="featPrev">Prev</button>
+          <button class="btn" id="featNext">Next</button>
+        </div>
+      </div>
+      <div class="h-slider" id="featuredSlider">
+        <div class="h-track" id="featTrack"></div>
+      </div>
+    </section>
+
+    <!-- Products grid -->
+    <section class="section card">
+      <div class="label-row">
+        <strong>Products</strong>
+        <div class="small">Showing <span id="showCount">0</span> items</div>
+      </div>
+      <div id="productsGrid" class="products-grid"></div>
+      <div id="noProducts" class="small" style="margin-top:12px;display:none">No products yet — use Admin to add items.</div>
+    </section>
+
+    <footer>
+      © My Loving Bracelets — Manage via Admin. Data stored locally unless you set a server endpoint.
+    </footer>
+  </div>
+
+  <!-- Cart overlay -->
+  <div class="overlay" id="cartOverlay">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Cart</strong>
+        <div>
+          <button class="btn ghost" id="clearCart">Clear</button>
+          <button class="btn" id="checkoutBtn">Checkout</button>
+          <button class="btn ghost" id="closeCart">Close</button>
+        </div>
+      </div>
+      <div id="cartItems" style="margin-top:12px"></div>
+      <div id="cartTotal" style="margin-top:12px;font-weight:800"></div>
+    </div>
+  </div>
+
+  <!-- Wishlist overlay -->
+  <div class="overlay" id="wishOverlay">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Wishlist</strong>
+        <div>
+          <button class="btn ghost" id="clearWish">Clear</button>
+          <button class="btn ghost" id="closeWish">Close</button>
+        </div>
+      </div>
+      <div id="wishItems" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- Admin overlay -->
+  <div class="overlay" id="adminOverlay">
+    <div class="modal" style="max-width:1100px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Admin Panel</strong>
+        <div>
+          <button class="btn ghost" id="exportBtn">Export</button>
+          <button class="btn ghost" id="importBtn">Import</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none">
+          <button class="btn ghost" id="closeAdmin">Close</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div class="card">
+          <strong>Add Product</strong>
+          <label>Images (multiple)</label>
+          <input id="prodImages" type="file" accept="image/*" multiple>
+          <label>Title</label>
+          <input id="prodTitle" type="text" placeholder="Classic Bracelet">
+          <label>Price (INR)</label>
+          <input id="prodPrice" type="number" placeholder="250">
+          <label>Tag</label>
+          <select id="prodTag"><option value="">None</option><option value="new">New</option><option value="best">Best</option></select>
+          <label>Description</label>
+          <textarea id="prodDesc" rows="3"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="addProdBtn">Add Product</button>
+            <button class="btn ghost" id="resetProd">Reset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Settings</strong>
+          <label>Hero images (you can upload multiple slides)</label>
+          <input id="heroInput" type="file" accept="image/*" multiple>
+          <label>WhatsApp number (international, digits only). Orders go here if no server endpoint is set.</label>
+          <input id="whatsInput" placeholder="e.g. 919876543210">
+          <label>Contact text (shown in header phone area)</label>
+          <input id="contactText" placeholder="+91 98765 43210">
+          <label>Optional server endpoint to POST order JSON (for automated WhatsApp)</label>
+          <input id="serverEndpoint" placeholder="https://your-server.example.com/order">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="saveSettings">Save Settings</button>
+            <button class="btn ghost" id="resetSettings">Reset Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <strong>Existing products</strong>
+        <div id="adminList" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -------------------------
+   Local storage keys & state
+   ------------------------- */
+const K_PRODUCTS = 'mlb_products_v1';
+const K_WISHLIST = 'mlb_wishlist_v1';
+const K_CART = 'mlb_cart_v1';
+const K_SETTINGS = 'mlb_settings_v1';
+const K_HERO = 'mlb_hero_v1';
+
+let products = JSON.parse(localStorage.getItem(K_PRODUCTS) || '[]');
+let wishlist = JSON.parse(localStorage.getItem(K_WISHLIST) || '[]');
+let cart = JSON.parse(localStorage.getItem(K_CART) || '[]');
+let settings = JSON.parse(localStorage.getItem(K_SETTINGS) || '{}');
+let heroSlides = JSON.parse(localStorage.getItem(K_HERO) || '[]');
+
+/* -------------------------
+   Query DOM
+   ------------------------- */
+const heroLeft = document.getElementById('heroLeft');
+const featTrack = document.getElementById('featTrack');
+const featuredSlider = document.getElementById('featuredSlider');
+const productsGrid = document.getElementById('productsGrid');
+const showCount = document.getElementById('showCount');
+const cartCountEl = document.getElementById('cartCount');
+const wishCountEl = document.getElementById('wishCount');
+const phoneText = document.getElementById('phoneText');
+const noProducts = document.getElementById('noProducts');
+
+const cartOverlay = document.getElementById('cartOverlay');
+const wishOverlay = document.getElementById('wishOverlay');
+const adminOverlay = document.getElementById('adminOverlay');
+
+const prodImages = document.getElementById('prodImages');
+const prodTitle = document.getElementById('prodTitle');
+const prodPrice = document.getElementById('prodPrice');
+const prodTag = document.getElementById('prodTag');
+const prodDesc = document.getElementById('prodDesc');
+const addProdBtn = document.getElementById('addProdBtn');
+const adminList = document.getElementById('adminList');
+const heroInput = document.getElementById('heroInput');
+const whatsInput = document.getElementById('whatsInput');
+const contactText = document.getElementById('contactText');
+const serverEndpoint = document.getElementById('serverEndpoint');
+
+const importFile = document.getElementById('importFile');
+
+/* -------------------------
+   Helpers
+   ------------------------- */
+function saveAll(){
+  localStorage.setItem(K_PRODUCTS, JSON.stringify(products));
+  localStorage.setItem(K_WISHLIST, JSON.stringify(wishlist));
+  localStorage.setItem(K_CART, JSON.stringify(cart));
+  localStorage.setItem(K_SETTINGS, JSON.stringify(settings));
+  localStorage.setItem(K_HERO, JSON.stringify(heroSlides));
+  renderCounts();
+}
+
+function renderCounts(){
+  cartCountEl.textContent = cart.reduce((s,i)=>s+i.qty,0) || 0;
+  wishCountEl.textContent = wishlist.length || 0;
+  showCount.textContent = products.length || 0;
+  phoneText.textContent = settings.contactText || (settings.whatsapp || 'Set number');
+}
+
+/* escape text */
+function esc(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+/* convert file to dataURL */
+function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+
+/* number formatting */
+function num(n){ return (n===undefined||n===null||n==='')?'-':Number(n).toLocaleString(); }
+
+/* -------------------------
+   Render hero slides
+   ------------------------- */
+let heroIndex = 0;
+function renderHero(){
+  heroLeft.innerHTML = '';
+  if(!heroSlides || heroSlides.length===0){
+    // default placeholder slide
+    const s = document.createElement('div'); s.className='hero-slide active';
+    s.innerHTML = '<img src="data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"1200\\\" height=\\\"600\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#e9eefc\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"28\\\">Upload hero images in Admin</text></svg>')+'"/>';
+    heroLeft.appendChild(s);
+    return;
+  }
+  heroSlides.forEach((src,i)=>{
+    const s = document.createElement('div'); s.className='hero-slide' + (i===heroIndex ? ' active' : '');
+    const img = document.createElement('img'); img.src = src; img.alt = 'Hero '+(i+1);
+    s.appendChild(img);
+    heroLeft.appendChild(s);
+  });
+}
+function heroNext(){ if(!heroSlides.length) return; heroIndex = (heroIndex+1)%heroSlides.length; renderHero(); }
+function heroPrev(){ if(!heroSlides.length) return; heroIndex = (heroIndex-1+heroSlides.length)%heroSlides.length; renderHero(); }
+setInterval(()=>{ if(heroSlides.length>1){ heroNext(); } }, 4500);
+
+/* -------------------------
+   Featured slider (horizontal)
+   ------------------------- */
+let featPos = 0;
+function renderFeatured(){
+  featTrack.innerHTML = '';
+  // pick up to 10 featured (best or new) or first items
+  const featured = products.filter(p => p.tag==='best' || p.tag==='new').concat(products).slice(0,12);
+  if(featured.length===0){
+    const placeholder = document.createElement('div'); placeholder.className='slide-card';
+    placeholder.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Add products in Admin to appear here</div>';
+    featTrack.appendChild(placeholder); return;
+  }
+  featured.forEach(p=>{
+    const c = document.createElement('div'); c.className='slide-card';
+    c.innerHTML = `<img src="${p.images&&p.images[0]?p.images[0]:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"600\\\" height=\\\"400\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#f2f4fb\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"20\\\">No Image</text></svg>') }">` +
+      `<div style="padding:10px"><div style="font-weight:700">${esc(p.title)}</div><div class="small">₹ ${num(p.price)}</div><div style="margin-top:8px"><button class="btn" onclick="openPreviewById(${p.id})">View</button></div></div>`;
+    featTrack.appendChild(c);
+  });
+}
+function featNext(){ const w = featuredSlider.clientWidth; const t = featTrack; featPos = Math.min(featPos + 260, Math.max(0, t.scrollWidth - w)); t.style.transform = 'translateX(' + (-featPos) + 'px)'; }
+function featPrev(){ const w = featuredSlider.clientWidth; const t = featTrack; featPos = Math.max(featPos - 260, 0); t.style.transform = 'translateX(' + (-featPos) + 'px)'; }
+
+/* -------------------------
+   Render products grid
+   ------------------------- */
+let currentFilter = 'all';
+function renderProducts(filter='all'){
+  currentFilter = filter;
+  productsGrid.innerHTML = '';
+  let list = products.slice();
+  if(filter==='new') list = list.filter(p=>p.tag==='new');
+  if(filter==='best') list = list.filter(p=>p.tag==='best');
+  if(list.length===0){ noProducts.style.display='block'; } else noProducts.style.display='none';
+  list.forEach((p,idx)=>{
+    const el = document.createElement('div'); el.className='product';
+    const imgSrc = p.images && p.images[0] ? p.images[0] : 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#f2f4fb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9aa3b2" font-size="20">No Image</text></svg>');
+    el.innerHTML = `<div class="product-media"><img class="product-main-img" src="${imgSrc}" alt="${esc(p.title)}"></div>
+      <div class="product-thumbs" id="thumbs-${p.id}"></div>
+      <div class="product-meta">
+        ${p.tag?`<div class="tag">${p.tag==='new'?'New':p.tag==='best'?'Best':''}</div>`:''}
+        <h3>${esc(p.title)}</h3>
+        <div class="desc">${esc(p.desc||'')}</div>
+        <div class="price">₹ ${num(p.price)}</div>
+        <div class="p-actions">
+          <button class="btn" onclick="addToCartById(${p.id})">Add to cart</button>
+          <button class="btn ghost" onclick="toggleWishById(${p.id})">${wishlist.includes(p.id)?'Remove wishlist':'Add wishlist'}</button>
+          <button class="btn ghost" onclick="openPreviewById(${p.id})">Preview</button>
+        </div>
+      </div>`;
+    productsGrid.appendChild(el);
+
+    // render thumbs
+    const thumbsWrap = document.getElementById('thumbs-'+p.id);
+    if(thumbsWrap){
+      (p.images||[]).slice(0,6).forEach((src,i)=>{
+        const t = document.createElement('img'); t.className='thumb'; t.src = src; t.alt = 'thumb';
+        t.addEventListener('click', ()=> {
+          // change main img
+          const main = el.querySelector('.product-main-img'); main.src = src;
+        });
+        thumbsWrap.appendChild(t);
+      });
+    }
+  });
+  renderFeatured();
+  renderCounts();
+}
+
+/* -------------------------
+   Cart & Wishlist actions
+   ------------------------- */
+function addToCartById(id){
+  const p = products.find(x=>x.id===id); if(!p) return alert('Product not found');
+  const existing = cart.find(c=>c.id===id);
+  if(existing) existing.qty += 1; else cart.push({id:id,qty:1});
+  saveAll(); renderCart(); alert('Added to cart');
+}
+function toggleWishById(id){
+  if(wishlist.includes(id)) wishlist = wishlist.filter(x=>x!==id); else wishlist.push(id);
+  saveAll(); renderWish(); alert('Wishlist updated');
+}
+
+/* Render cart overlay */
+function renderCart(){
+  const wrap = document.getElementById('cartItems'); wrap.innerHTML = '';
+  if(cart.length===0){ wrap.innerHTML = '<div class="small">Cart is empty</div>'; document.getElementById('cartTotal').textContent=''; return; }
+  let total = 0;
+  cart.forEach(item=>{
+    const p = products.find(x=>x.id===item.id); if(!p) return;
+    const row = document.createElement('div'); row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';row.style.padding='8px 0';row.style.borderBottom='1px solid #f1f1f1';
+    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><img src="${p.images&&p.images[0]?p.images[0]:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"600\\\" height=\\\"400\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#f2f4fb\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"20\\\">No Image</text></svg>') }" style="width:64px;height:48px;object-fit:cover;border-radius:6px">${'</div>'}
+      <div style="flex:1;margin-left:8px"><div style="font-weight:700">${esc(p.title)}</div><div class="small">₹${num(p.price)}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" min="1" value="${item.qty}" style="width:72px;padding:6px;border-radius:6px;border:1px solid #eee">
+        <div style="font-weight:700">₹${num(p.price * item.qty)}</div>
+        <button class="btn ghost">Remove</button>
+      </div>`;
+    // attach events
+    const qtyInput = row.querySelector('input');
+    qtyInput.addEventListener('change', (e)=> {
+      const v = Math.max(1, parseInt(e.target.value)||1);
+      item.qty = v; saveAll(); renderCart(); renderProducts(currentFilter);
+    });
+    row.querySelector('button').addEventListener('click', ()=> {
+      cart = cart.filter(c=>c.id!==item.id); saveAll(); renderCart(); renderProducts(currentFilter);
+    });
+    wrap.appendChild(row);
+    total += p.price * item.qty;
+  });
+  document.getElementById('cartTotal').textContent = 'Total: ₹' + num(total);
+}
+
+/* Render wishlist overlay */
+function renderWish(){
+  const wrap = document.getElementById('wishItems'); wrap.innerHTML = '';
+  if(wishlist.length===0){ wrap.innerHTML = '<div class="small">No items in wishlist</div>'; return; }
+  wishlist.forEach(id=>{
+    const p = products.find(x=>x.id===id); if(!p) return;
+    const row = document.createElement('div'); row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';row.style.padding='8px 0';row.style.borderBottom='1px solid #f1f1f1';
+    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+      <img src="${p.images&&p.images[0]?p.images[0]:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"600\\\" height=\\\"400\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#f2f4fb\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"20\\\">No Image</text></svg>') }" style="width:64px;height:48px;object-fit:cover;border-radius:6px">
+      <div style="margin-left:8px"><div style="font-weight:700">${esc(p.title)}</div><div class="small">₹${num(p.price)}</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="wishToCart(${p.id})">Add to cart</button>
+      <button class="btn ghost" onclick="removeWish(${p.id})">Remove</button>
+    </div>`;
+    wrap.appendChild(row);
+  });
+}
+function wishToCart(pid){
+  const p = products.find(x=>x.id===pid); if(!p) return;
+  const ex = cart.find(c=>c.id===p.id); if(ex) ex.qty += 1; else cart.push({id:p.id,qty:1});
+  wishlist = wishlist.filter(id=>id!==p.id); saveAll(); renderCart(); renderProducts(currentFilter); renderWish(); alert('Moved to cart');
+}
+function removeWish(pid){ wishlist = wishlist.filter(id=>id!==pid); saveAll(); renderWish(); renderProducts(currentFilter); }
+
+/* -------------------------
+   Preview modal (simple alert or custom)
+   ------------------------- */
+function openPreviewById(pid){
+  const p = products.find(x=>x.id===pid); if(!p) return;
+  // simple custom preview dialog using window.open or alert for simplicity
+  let html = `${p.title}\n\n${p.desc||''}\n\nPrice: ₹${p.price}\n\nImages: ${ (p.images||[]).length }`;
+  alert(html);
+}
+
+/* -------------------------
+   Checkout logic:
+   - If settings.server is present, POST order JSON to server.
+   - Else open WhatsApp prefilled message to settings.whatsapp (or prompt).
+   ------------------------- */
+async function checkoutFlow(){
+  if(cart.length===0) return alert('Cart is empty');
+  const buyer = prompt('Buyer name (required):'); if(!buyer) return alert('Name required');
+  const phone = prompt('Buyer phone (optional):','');
+  const useCOD = confirm('Press OK for Cash on Delivery, Cancel for Online/Prepaid');
+  const payment = useCOD ? 'Cash on Delivery' : 'Online/Prepaid';
+  const items = cart.map(ci => { const p = products.find(x=>x.id===ci.id); return { id:p.id, title:p.title, unitPrice:p.price, qty:ci.qty, subTotal:p.price*ci.qty }; });
+  const total = items.reduce((s,it)=>s+it.subTotal,0);
+  const order = { shop:'My Loving Bracelets', total, items, buyer:{name:buyer,phone:phone||''}, payment };
+
+  if(settings.server){
+    try{
+      const resp = await fetch(settings.server, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(order) });
+      if(!resp.ok) throw new Error('Server returned ' + resp.status);
+      alert('Order sent to server');
+      cart = []; saveAll(); renderCart(); renderProducts(currentFilter); cartOverlay.classList.remove('show');
+      return;
+    } catch(err){
+      alert('Server send failed: ' + err.message + '\nFalling back to WhatsApp link.');
+    }
+  }
+
+  // fallback to WhatsApp
+  let wa = settings.whatsapp || '';
+  if(!wa) wa = prompt('Enter WhatsApp number to receive notification (with country code):','91');
+  if(!wa) return alert('WhatsApp number required');
+  wa = wa.replace(/\D/g,'');
+  const lines = [];
+  lines.push('New order from My Loving Bracelets');
+  lines.push('');
+  items.forEach(it => lines.push(`${it.title} — ₹${it.unitPrice} x ${it.qty} = ₹${it.subTotal}`));
+  lines.push('');
+  lines.push('Total: ₹' + total);
+  lines.push('Buyer: ' + buyer);
+  if(phone) lines.push('Contact: ' + phone);
+  lines.push('Payment: ' + payment);
+  lines.push('');
+  lines.push('Please confirm the order.');
+  const msg = encodeURIComponent(lines.join('\n'));
+  window.open(`https://wa.me/${wa}?text=${msg}`, '_blank');
+}
+
+/* -------------------------
+   Admin actions: add product, hero upload, export/import, settings
+   ------------------------- */
+addProdBtn.addEventListener('click', async ()=>{
+  const title = prodTitle.value.trim(); const price = Number(prodPrice.value||0);
+  if(!title) return alert('Enter title'); if(!price) return alert('Enter price');
+  const files = Array.from(prodImages.files||[]);
+  let imgs = [];
+  if(files.length){
+    imgs = await Promise.all(files.slice(0,12).map(f => fileToDataUrl(f)));
+  }
+  const p = { id: Date.now(), title, price, desc: prodDesc.value.trim(), tag: prodTag.value, images: imgs };
+  products.unshift(p);
+  prodTitle.value=''; prodPrice.value=''; prodDesc.value=''; prodTag.value=''; prodImages.value='';
+  saveAll(); renderProducts(currentFilter); renderAdminList(); alert('Product added');
+});
+
+function renderAdminList(){
+  adminList.innerHTML = '';
+  if(products.length===0){ adminList.innerHTML = '<div class="small">No products</div>'; return; }
+  products.forEach((p,i)=>{
+    const row = document.createElement('div'); row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';row.style.padding='8px 0';row.style.borderBottom='1px solid #f1f1f1';
+    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+      <img src="${p.images&&p.images[0]?p.images[0]:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"600\\\" height=\\\"400\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#f2f4fb\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"20\\\">No Image</text></svg>') }" style="width:64px;height:48px;object-fit:cover;border-radius:6px">
+      <div style="margin-left:8px"><div style="font-weight:700">${esc(p.title)}</div><div class="small">₹${num(p.price)}</div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn ghost" onclick="editProductAdmin(${i})">Edit</button>
+      <button class="btn" onclick="deleteProductAdmin(${i})">Delete</button>
+    </div>`;
+    adminList.appendChild(row);
+  });
+}
+
+window.editProductAdmin = function(i){
+  const p = products[i];
+  const t = prompt('Edit title', p.title); if(t===null) return;
+  p.title = t.trim() || p.title;
+  const pr = prompt('Edit price', p.price); if(pr!==null && pr!=='') p.price = Number(pr) || p.price;
+  const d = prompt('Edit description', p.desc||''); if(d!==null) p.desc = d;
+  const tag = prompt('Tag (new/best/leave empty)', p.tag||''); p.tag = tag || '';
+  products[i]=p; saveAll(); renderProducts(currentFilter); renderAdminList();
+};
+window.deleteProductAdmin = function(i){ if(!confirm('Delete product?')) return; products.splice(i,1); saveAll(); renderProducts(currentFilter); renderAdminList(); };
+
+/* hero upload */
+heroInput.addEventListener('change', async (e)=>{
+  const files = Array.from(e.target.files||[]);
+  if(files.length){
+    const arr = await Promise.all(files.map(f=>fileToDataUrl(f)));
+    heroSlides = heroSlides.concat(arr).slice(-12); // keep last 12
+    heroInput.value='';
+    saveAll(); renderHero();
+  }
+});
+
+/* export/import */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const payload = { products, wishlist, cart, settings, heroSlides };
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='mlb_export.json'; a.click(); URL.revokeObjectURL(url);
+});
+document.getElementById('importBtn').addEventListener('click', ()=> importFile.click());
+importFile.addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const txt = await f.text(); const data = JSON.parse(txt);
+    if(data.products) products = data.products.concat(products);
+    if(data.wishlist) wishlist = Array.from(new Set((data.wishlist||[]).concat(wishlist)));
+    if(data.cart) cart = (data.cart||[]).concat(cart);
+    if(data.settings) settings = Object.assign({}, settings, data.settings);
+    if(data.heroSlides) heroSlides = (data.heroSlides||[]).concat(heroSlides);
+    saveAll(); renderProducts(currentFilter); renderAdminList(); renderCart(); renderWish(); renderHero();
+    alert('Import completed');
+  }catch(err){ alert('Import failed: '+err.message); }
+  e.target.value='';
+});
+
+/* settings */
+document.getElementById('saveSettings').addEventListener('click', ()=>{
+  settings.whatsapp = (whatsInput.value||'').replace(/\D/g,'');
+  settings.contactText = contactText.value.trim();
+  settings.server = serverEndpoint.value.trim();
+  saveAll(); renderCounts(); alert('Settings saved');
+});
+document.getElementById('resetSettings').addEventListener('click', ()=>{
+  if(!confirm('Reset settings?')) return;
+  settings = {}; saveAll(); renderCounts(); alert('Reset');
+});
+
+/* -------------------------
+   UI wiring: header buttons, overlays, nav filtering
+   ------------------------- */
+/* ---- REPLACED: admin opens with password prompt ---- */
+document.getElementById('openAdmin').addEventListener('click', ()=> {
+  const password = prompt('Enter admin password:');
+  if(password === 'ia501284'){
+    adminOverlay.classList.add('show');
+    renderAdminList();
+    whatsInput.value = settings.whatsapp||'';
+    contactText.value = settings.contactText||'';
+    serverEndpoint.value = settings.server||'';
+  } else {
+    alert('Incorrect password');
+  }
+});
+/* ---------------------------------------------------- */
+
+document.getElementById('closeAdmin').addEventListener('click', ()=> adminOverlay.classList.remove('show'));
+
+document.getElementById('openCart').addEventListener('click', ()=>{ cartOverlay.classList.add('show'); renderCart(); });
+document.getElementById('closeCart').addEventListener('click', ()=> cartOverlay.classList.remove('show'));
+document.getElementById('clearCart').addEventListener('click', ()=>{ if(!confirm('Clear cart?')) return; cart=[]; saveAll(); renderCart(); });
+
+document.getElementById('openWishlist').addEventListener('click', ()=>{ wishOverlay.classList.add('show'); renderWish(); });
+document.getElementById('closeWish').addEventListener('click', ()=> wishOverlay.classList.remove('show'));
+document.getElementById('clearWish').addEventListener('click', ()=>{ if(!confirm('Clear wishlist?')) return; wishlist=[]; saveAll(); renderWish(); });
+
+document.getElementById('phoneBtn').addEventListener('click', ()=> {
+  if(settings.whatsapp) window.open(`https://wa.me/${settings.whatsapp}`, '_blank');
+  else {
+    const v = prompt('Enter WhatsApp number (with country code):','91'); if(!v) return; settings.whatsapp = v.replace(/\D/g,''); whatsInput.value = settings.whatsapp; saveAll(); renderCounts(); alert('Saved');
+  }
+});
+
+document.getElementById('checkoutBtn').addEventListener('click', ()=> checkoutFlow());
+document.getElementById('closeCart').addEventListener('click', ()=> cartOverlay.classList.remove('show'));
+
+document.getElementById('shopNow').addEventListener('click', ()=> window.scrollTo({top: document.querySelector('.card')?document.querySelector('.card').offsetTop:0, behavior:'smooth'}));
+document.getElementById('viewAll').addEventListener('click', ()=> { document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelector('.nav-btn[data-filter=\"all\"]').classList.add('active'); currentFilter='all'; renderProducts('all'); });
+
+document.querySelectorAll('.nav-btn').forEach(b=> b.addEventListener('click', ()=> {
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); const f = b.dataset.filter||'all'; renderProducts(f);
+}));
+
+/* featured next/prev */
+document.getElementById('featNext').addEventListener('click', ()=> featNext());
+document.getElementById('featPrev').addEventListener('click', ()=> featPrev());
+function featNext(){ const w = featuredSlider.clientWidth; featPos = Math.min(featPos + 260, Math.max(0, featTrack.scrollWidth - w)); featTrack.style.transform = 'translateX(' + (-featPos) + 'px)'; }
+function featPrev(){ featPos = Math.max(featPos - 260, 0); featTrack.style.transform = 'translateX(' + (-featPos) + 'px)'; }
+
+/* -------------------------
+   Misc helpers on load
+   ------------------------- */
+function renderCart(){ /* defined earlier; call again to initialize */ 
+  const wrap = document.getElementById('cartItems'); wrap.innerHTML = '';
+  if(cart.length===0){ wrap.innerHTML = '<div class=\"small\">Cart is empty</div>'; document.getElementById('cartTotal').textContent=''; return; }
+  let total = 0;
+  cart.forEach(item=>{
+    const p = products.find(x=>x.id===item.id); if(!p) return;
+    const row = document.createElement('div'); row.style.display='flex';row.style.alignItems='center';row.style.justifyContent='space-between';row.style.padding='8px 0';row.style.borderBottom='1px solid #f1f1f1';
+    row.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><img src="${p.images&&p.images[0]?p.images[0]:'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"600\\\" height=\\\"400\\\"><rect width=\\\"100%\\\" height=\\\"100%\\\" fill=\\\"#f2f4fb\\\"/><text x=\\\"50%\\\" y=\\\"50%\\\" dominant-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" fill=\\\"#9aa3b2\\\" font-size=\\\"20\\\">No Image</text></svg>') }" style="width:64px;height:48px;object-fit:cover;border-radius:6px">
+      <div style="flex:1;margin-left:8px"><div style="font-weight:700">${esc(p.title)}</div><div class="small">₹${num(p.price)}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" min="1" value="${item.qty}" style="width:72px;padding:6px;border-radius:6px;border:1px solid #eee">
+        <div style="font-weight:700">₹${num(p.price * item.qty)}</div>
+        <button class="btn ghost">Remove</button>
+      </div>`;
+    const qtyInput = row.querySelector('input');
+    qtyInput.addEventListener('change', (e)=> { const v = Math.max(1, parseInt(e.target.value)||1); item.qty = v; saveAll(); renderCart(); renderProducts(currentFilter); });
+    row.querySelector('button').addEventListener('click', ()=> { cart = cart.filter(c=>c.id!==item.id); saveAll(); renderCart(); renderProducts(currentFilter); });
+    wrap.appendChild(row);
+    total += p.price * item.qty;
+  });
+  document.getElementById('cartTotal').textContent = 'Total: ₹' + num(total);
+}
+
+/* helper to open preview by id (improved) */
+window.openPreviewById = openPreviewById;
+
+/* init */
+(function init(){
+  renderHero();
+  renderProducts('all');
+  renderAdminList();
+  renderCart();
+  renderWish();
+  renderCounts();
+})();
+
+/* save on unload */
+window.addEventListener('beforeunload', ()=> saveAll());
+</script>
+</body>
+</html>
